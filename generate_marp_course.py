@@ -204,17 +204,11 @@ def zip_course_material(config, output_dir, extra_paths, course_slides):
         # Add extra files
         for chapter_title, chapter_extras in extra_paths.items():
             chapter_title = chapter_title.replace(" ", "_")
-            print(chapter_extras)
             chapter_root = chapter_extras["root"]
             for extra_path in chapter_extras["extras"]:
                 # If the path is a directory, add all files in it preserving the directory structure
                 if extra_path.is_dir():
                     for extra_file in extra_path.rglob("*"):
-                        print("Extra file: " + str(extra_file))
-                        print(
-                            "Extra relative file: "
-                            + str(extra_file.relative_to(chapter_root))
-                        )
                         zip_file.write(
                             extra_file,
                             Path(
@@ -223,7 +217,6 @@ def zip_course_material(config, output_dir, extra_paths, course_slides):
                             ),
                         )
                 else:
-                    print("Plain file: " + str(extra_path.relative_to(chapter_root)))
                     zip_file.write(
                         extra_path,
                         Path(chapter_title, extra_path.relative_to(chapter_root)),
