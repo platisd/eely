@@ -50,17 +50,17 @@ def main():
 
     if args.link:
         all_slides_link = False
-        config_path = args.link
+        config_path = Path(args.link)
         output_format = "md"
         action = create_links
     elif args.html:
         all_slides_link = False
-        config_path = args.html
+        config_path = Path(args.html)
         output_format = "html"
         action = create_html
     elif args.pdf:
         all_slides_link = True
-        config_path = args.pdf
+        config_path = Path(args.pdf)
         output_format = "pdf"
         action = create_pdf
     else:
@@ -70,13 +70,12 @@ def main():
         config = yaml.safe_load(config_file)
 
     table_of_contents, output_dir = create_filetree(
-        config, config_path, output_format, action
+        config, config_path.parent, output_format, action
     )
     generate_index_page(table_of_contents, output_dir, config, all_slides_link)
 
 
-def create_filetree(config, config_path, output_format, action):
-    config_dir = Path(config_path).parent
+def create_filetree(config, config_dir, output_format, action):
     root_path = Path(config["root"])
     root_dir = root_path if root_path.is_absolute() else Path(config_dir, root_path)
     output_path = Path(config["output"])
