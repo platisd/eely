@@ -5,6 +5,7 @@ import subprocess
 
 from yattag import Doc, indent
 from pathlib import Path
+from pypdf import PdfWriter
 
 TABLE_OF_CONTENTS_CSS = """
     ol {
@@ -96,7 +97,7 @@ def run_action(config_path, output_format, action):
 
         table_of_contents[chapter_title] = chapter_slides
 
-    generate_table_of_contents(table_of_contents, output_dir, config)
+    generate_index_page(table_of_contents, output_dir, config, action == create_pdf)
 
     return 0
 
@@ -120,7 +121,7 @@ def run_marp(slide_src, slide_dest, config, output_type_flag):
     subprocess.check_call([marp, slide_src, output_type_flag, "-o", slide_dest])
 
 
-def generate_table_of_contents(table_of_contents, output_dir, config):
+def generate_index_page(table_of_contents, output_dir, config, all_slides_link):
     with open(Path(output_dir, "index.html"), "w") as index_file:
         doc, tag, text = Doc().tagtext()
         with tag("html"):
@@ -130,6 +131,7 @@ def generate_table_of_contents(table_of_contents, output_dir, config):
                 with tag("style"):
                     text(TABLE_OF_CONTENTS_CSS)
             with tag("body"):
+                # Table of contents
                 with tag("ol", type="1"):
                     for chapter_title, chapter_slides in table_of_contents.items():
                         with tag("li"):
@@ -139,6 +141,21 @@ def generate_table_of_contents(table_of_contents, output_dir, config):
                                     with tag("li"):
                                         with tag("a", href=f"{slide_path}"):
                                             text(slide_title)
+                if all_slides_link:
+                    with PdfWriter() as merger:
+                        for chapter_slides in table_of_contents.values():
+                            for _, slide_path in chapter_slides:
+                                merger.append(slide_path)
+                        all_slides_path = (
+                            f'{config["title"].replace(" ", "_")}.pdf'
+                            if "all_slides" not in config
+                            else config["all_slides"]
+                        )
+                        merger.write(Path(output_dir, all_slides_path))
+
+                    doc.stag("hr")
+                    with tag("a", href=f"{all_slides_path}", style="font-size: 24pt"):
+                        text("All slides")
         index_file.write(indent(doc.getvalue(), indent_text=True))
 
 

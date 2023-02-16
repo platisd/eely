@@ -2,6 +2,7 @@
 title: "Company X delivery"
 root: "slides"
 output: "output/company-x"
+all_slides: "company-x-course.pdf"
 assets: "resources"
 chapters:
   "Hello world":
