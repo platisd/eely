@@ -50,27 +50,32 @@ def main():
 
     if args.link:
         all_slides_link = False
-        table_of_contents, output_dir, config = create_filetree(
-            args.link, "md", create_links
-        )
-    if args.html:
+        config_path = args.link
+        output_format = "md"
+        action = create_links
+    elif args.html:
         all_slides_link = False
-        table_of_contents, output_dir, config = create_filetree(
-            args.html, "html", create_html
-        )
-    if args.pdf:
+        config_path = args.html
+        output_format = "html"
+        action = create_html
+    elif args.pdf:
         all_slides_link = True
-        table_of_contents, output_dir, config = create_filetree(
-            args.pdf, "pdf", create_pdf
-        )
+        config_path = args.pdf
+        output_format = "pdf"
+        action = create_pdf
+    else:
+        raise RuntimeError("Action missing, we should not get here")
 
-    generate_index_page(table_of_contents, output_dir, config, all_slides_link)
-
-
-def create_filetree(config_path, output_format, action):
     with open(config_path, "r") as config_file:
         config = yaml.safe_load(config_file)
 
+    table_of_contents, output_dir = create_filetree(
+        config, config_path, output_format, action
+    )
+    generate_index_page(table_of_contents, output_dir, config, all_slides_link)
+
+
+def create_filetree(config, config_path, output_format, action):
     config_dir = Path(config_path).parent
     root_dir = Path(Path(config_path).parent, config["root"])
     output_dir = Path(Path(config_path).parent, config["output"])
@@ -104,7 +109,7 @@ def create_filetree(config_path, output_format, action):
 
         table_of_contents[chapter_title] = chapter_slides
 
-    return table_of_contents, output_dir, config
+    return table_of_contents, output_dir
 
 
 def create_links(slide_src, slide_dest, _):
