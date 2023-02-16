@@ -131,6 +131,9 @@ def generate_index_page(table_of_contents, output_dir, config, all_slides_link):
                 with tag("style"):
                     text(TABLE_OF_CONTENTS_CSS)
             with tag("body"):
+                # Title
+                with tag("h1"):
+                    text(config["title"])
                 # Table of contents
                 with tag("ol", type="1"):
                     for chapter_title, chapter_slides in table_of_contents.items():
