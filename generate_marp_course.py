@@ -83,7 +83,7 @@ def create_filetree(config, config_path, output_format, action):
     output_dir = (
         output_path if output_path.is_absolute() else Path(config_dir, output_path)
     )
-    assets = Path("" if "assets" not in config else config["assets"])
+    assets = "" if "assets" not in config else Path(config["assets"])
 
     table_of_contents = {}
     for chapter_title, chapter in config["chapters"].items():
@@ -91,11 +91,11 @@ def create_filetree(config, config_path, output_format, action):
         chapter_output = Path(output_dir, chapter_title.replace(" ", "_"))
         chapter_output.mkdir(parents=True, exist_ok=True)
 
-        chapter_assets_dest = Path(chapter_output, assets)
-        chapter_assets_dest.unlink(missing_ok=True)
-        chapter_assets_dest.symlink_to(
-            Path(config_dir, assets), target_is_directory=True
-        )
+        if assets:
+            chapter_assets_dest = Path(chapter_output, assets)
+            chapter_assets_dest.unlink(missing_ok=True)
+            assets_dir = assets if assets.is_absolute() else Path(config_dir, assets)
+            chapter_assets_dest.symlink_to(assets_dir, target_is_directory=True)
 
         chapter_slides = []
         slide_number = 0  # Number the slides to appear ordered when using marp --server
