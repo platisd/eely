@@ -1,0 +1,22 @@
+---
+title: "Company X delivery"
+root: "slides"
+output: "output/company-x"
+assets: "resources"
+chapters:
+  "Hello world":
+    root: "hello-world"
+    slides:
+      "Hello world": "hello-world.md"
+      "Setting up the environment": "environment.md"
+      "Variables": "variables.md"
+      "Functions": "functions.md"
+  "Data types":
+    root: "data-types"
+    slides:
+      "Data types": "data-types.md"
+      "Strings": "strings.md"
+      "Numbers": "numbers.md"
+      "Booleans": "booleans.md"
+      "Arrays": "arrays.md"
+      "Objects": "objects.md"
