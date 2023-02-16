@@ -207,19 +207,27 @@ def zip_course_material(config, output_dir, extra_paths, course_slides):
             chapter_root = chapter_extras["root"]
             for extra_path in chapter_extras["extras"]:
                 # If the path is a directory, add all files in it preserving the directory structure
+                relative_to_chapter_root = extra_path.is_relative_to(chapter_root)
                 if extra_path.is_dir():
                     for extra_file in extra_path.rglob("*"):
                         zip_file.write(
                             extra_file,
                             Path(
                                 chapter_title,
-                                extra_file.relative_to(chapter_root),
+                                extra_file.relative_to(chapter_root)
+                                if relative_to_chapter_root
+                                else extra_file.relative_to(extra_path.parent),
                             ),
                         )
                 else:
                     zip_file.write(
                         extra_path,
-                        Path(chapter_title, extra_path.relative_to(chapter_root)),
+                        Path(
+                            chapter_title,
+                            extra_path.relative_to(chapter_root)
+                            if relative_to_chapter_root
+                            else extra_path.name,
+                        ),
                     )
 
     return course_archive
