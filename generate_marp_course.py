@@ -6,6 +6,7 @@ import subprocess
 from yattag import Doc, indent
 from pathlib import Path
 from pypdf import PdfWriter
+from zipfile import ZipFile
 
 TABLE_OF_CONTENTS_CSS = """
     ol {
@@ -49,17 +50,17 @@ def main():
     args = parser.parse_args()
 
     if args.link:
-        all_slides_link = False
+        package_material = False
         config_path = Path(args.link)
         output_format = "md"
         action = create_links
     elif args.html:
-        all_slides_link = False
+        package_material = False
         config_path = Path(args.html)
         output_format = "html"
         action = create_html
     elif args.pdf:
-        all_slides_link = True
+        package_material = True
         config_path = Path(args.pdf)
         output_format = "pdf"
         action = create_pdf
@@ -69,10 +70,24 @@ def main():
     with open(config_path, "r") as config_file:
         config = yaml.safe_load(config_file)
 
-    table_of_contents, output_dir = create_filetree(
+    table_of_contents, output_dir, extra_paths = create_filetree(
         config, config_path.parent, output_format, action
     )
-    generate_index_page(table_of_contents, output_dir, config, all_slides_link)
+    course_slides = None
+    course_archive = None
+    if package_material:
+        course_slides = merge_course_slides(config, table_of_contents, output_dir)
+        course_archive = zip_course_material(
+            config, output_dir, extra_paths, course_slides
+        )
+    generate_index_page(
+        table_of_contents,
+        course_slides,
+        course_archive,
+        output_dir,
+        config,
+        package_material,
+    )
 
 
 def create_filetree(config, config_dir, output_format, action):
@@ -85,6 +100,7 @@ def create_filetree(config, config_dir, output_format, action):
     assets = "" if "assets" not in config else Path(config["assets"])
 
     table_of_contents = {}
+    extra_paths_per_chapter = {}
     for chapter_title, chapter in config["chapters"].items():
         chapter_root = Path(root_dir, "" if "root" not in chapter else chapter["root"])
         chapter_output = Path(output_dir, chapter_title.replace(" ", "_"))
@@ -95,6 +111,22 @@ def create_filetree(config, config_dir, output_format, action):
             chapter_assets_dest.unlink(missing_ok=True)
             assets_dir = assets if assets.is_absolute() else Path(config_dir, assets)
             chapter_assets_dest.symlink_to(assets_dir, target_is_directory=True)
+
+        extras = [] if "extras" not in chapter else chapter["extras"]
+        chapter_extras = []
+        for extra_path in extras:
+            extra_path = Path(extra_path)
+            extra_src = (
+                extra_path
+                if extra_path.is_absolute()
+                else Path(chapter_root, extra_path)
+            )
+            assert extra_src.exists(), f"Extra file {extra_src} does not exist"
+            chapter_extras.append(extra_src)
+        if chapter_extras:
+            extra_paths_per_chapter[chapter_title] = {}
+            extra_paths_per_chapter[chapter_title]["extras"] = chapter_extras
+            extra_paths_per_chapter[chapter_title]["root"] = chapter_root
 
         chapter_slides = []
         slide_number = 0  # Number the slides to appear ordered when using marp --server
@@ -112,7 +144,7 @@ def create_filetree(config, config_dir, output_format, action):
 
         table_of_contents[chapter_title] = chapter_slides
 
-    return table_of_contents, output_dir
+    return table_of_contents, output_dir, extra_paths_per_chapter
 
 
 def create_links(slide_src, slide_dest, _):
@@ -134,7 +166,80 @@ def run_marp(slide_src, slide_dest, config, output_type_flag):
     subprocess.check_call([marp, slide_src, output_type_flag, "-o", slide_dest])
 
 
-def generate_index_page(table_of_contents, output_dir, config, all_slides_link):
+def merge_course_slides(config, table_of_contents, output_dir):
+    with PdfWriter() as merger:
+        for chapter_slides in table_of_contents.values():
+            for _, slide_path in chapter_slides:
+                merger.append(slide_path)
+        course_slides = Path(
+            f'{config["title"].replace(" ", "_")}.pdf'
+            if "course_slides" not in config
+            else config["course_slides"]
+        )
+        course_slides = (
+            course_slides
+            if course_slides.is_absolute()
+            else Path(output_dir, course_slides)
+        )
+        merger.write(course_slides)
+
+    return course_slides
+
+
+def zip_course_material(config, output_dir, extra_paths, course_slides):
+    course_slides = Path(output_dir, course_slides)
+    course_archive = Path(
+        f'{config["title"].replace(" ", "_")}.zip'
+        if "course_archive" not in config
+        else config["course_archive"]
+    )
+    course_archive = (
+        course_archive
+        if course_archive.is_absolute()
+        else Path(output_dir, course_archive)
+    )
+    with ZipFile(course_archive, "w") as zip_file:
+        # Add slides
+        zip_file.write(course_slides, course_slides.name)
+        # Add extra files
+        for chapter_title, chapter_extras in extra_paths.items():
+            chapter_title = chapter_title.replace(" ", "_")
+            print(chapter_extras)
+            chapter_root = chapter_extras["root"]
+            for extra_path in chapter_extras["extras"]:
+                # If the path is a directory, add all files in it preserving the directory structure
+                if extra_path.is_dir():
+                    for extra_file in extra_path.rglob("*"):
+                        print("Extra file: " + str(extra_file))
+                        print(
+                            "Extra relative file: "
+                            + str(extra_file.relative_to(chapter_root))
+                        )
+                        zip_file.write(
+                            extra_file,
+                            Path(
+                                chapter_title,
+                                extra_file.relative_to(chapter_root),
+                            ),
+                        )
+                else:
+                    print("Plain file: " + str(extra_path.relative_to(chapter_root)))
+                    zip_file.write(
+                        extra_path,
+                        Path(chapter_title, extra_path.relative_to(chapter_root)),
+                    )
+
+    return course_archive
+
+
+def generate_index_page(
+    table_of_contents,
+    course_slides,
+    course_archive,
+    output_dir,
+    config,
+    package_material,
+):
     with open(Path(output_dir, "index.html"), "w") as index_file:
         doc, tag, text = Doc().tagtext()
         with tag("html"):
@@ -157,21 +262,13 @@ def generate_index_page(table_of_contents, output_dir, config, all_slides_link):
                                     with tag("li"):
                                         with tag("a", href=f"{slide_path}"):
                                             text(slide_title)
-                if all_slides_link:
-                    with PdfWriter() as merger:
-                        for chapter_slides in table_of_contents.values():
-                            for _, slide_path in chapter_slides:
-                                merger.append(slide_path)
-                        all_slides_path = (
-                            f'{config["title"].replace(" ", "_")}.pdf'
-                            if "all_slides" not in config
-                            else config["all_slides"]
-                        )
-                        merger.write(Path(output_dir, all_slides_path))
-
+                if package_material:
                     doc.stag("hr")
-                    with tag("a", href=f"{all_slides_path}", style="font-size: 24pt"):
-                        text("All slides")
+                    with tag("a", href=f"{course_slides}", style="font-size: 24pt"):
+                        text("Course slides")
+                    doc.stag("br")
+                    with tag("a", href=f"{course_archive}", style="font-size: 24pt"):
+                        text("Course archive")
         index_file.write(indent(doc.getvalue(), indent_text=True))
 
 

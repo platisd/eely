@@ -39,7 +39,7 @@ def test_create_filetree(tmp_path):
     config_dir = Path(Path().absolute(), "my-awesome-course")
     output_format = "md"
     action = generator.create_links
-    table_of_contents, output_dir = generator.create_filetree(
+    table_of_contents, output_dir, _ = generator.create_filetree(
         config, config_dir, output_format, action
     )
     assert output_dir == tmp_path

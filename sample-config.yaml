@@ -2,7 +2,8 @@
 title: "Company X delivery"
 root: "slides"
 output: "output/company-x"
-all_slides: "company-x-course.pdf"
+course_slides: "company-x-course.pdf"
+course_archive: "company-x-course.zip"
 assets: "resources"
 chapters:
   "Hello world":
@@ -12,6 +13,10 @@ chapters:
       "Setting up the environment": "environment.md"
       "Variables": "variables.md"
       "Functions": "functions.md"
+    extras:
+      - "exercises/hello-world"
+      - "exercises/functions"
+      - "how-to-setup-vscode.pdf"
   "Data types":
     root: "data-types"
     slides:
@@ -21,3 +26,5 @@ chapters:
       "Booleans": "booleans.md"
       "Arrays": "arrays.md"
       "Objects": "objects/objects.md"
+    extras:
+      - "exercises/objects"
