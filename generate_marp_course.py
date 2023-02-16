@@ -77,8 +77,12 @@ def main():
 
 def create_filetree(config, config_path, output_format, action):
     config_dir = Path(config_path).parent
-    root_dir = Path(Path(config_path).parent, config["root"])
-    output_dir = Path(Path(config_path).parent, config["output"])
+    root_path = Path(config["root"])
+    root_dir = root_path if root_path.is_absolute() else Path(config_dir, root_path)
+    output_path = Path(config["output"])
+    output_dir = (
+        output_path if output_path.is_absolute() else Path(config_dir, output_path)
+    )
     assets = Path("" if "assets" not in config else config["assets"])
 
     table_of_contents = {}
