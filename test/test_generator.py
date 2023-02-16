@@ -12,10 +12,10 @@ def test_create_filetree(tmp_path):
         "root": "slides",
         "output": tmp_path,
         "all_slides": "company-x-course.pdf",
-        "assets": "resources",
         "chapters": {
             "Hello world": {
                 "root": "hello-world",
+                "assets": "resources",
                 "slides": {
                     "Hello world": "hello-world.md",
                     "Setting up the environment": "environment.md",

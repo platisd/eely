@@ -4,10 +4,10 @@ root: "slides"
 output: "output/company-x"
 course_slides: "company-x-course.pdf"
 course_archive: "company-x-course.zip"
-assets: "resources"
 chapters:
   "Hello world":
     root: "hello-world"
+    assets: "resources"
     slides:
       "Hello world": "hello-world.md"
       "Setting up the environment": "environment.md"

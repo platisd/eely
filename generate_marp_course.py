@@ -97,7 +97,6 @@ def create_filetree(config, config_dir, output_format, action):
     output_dir = (
         output_path if output_path.is_absolute() else Path(config_dir, output_path)
     )
-    assets = "" if "assets" not in config else Path(config["assets"])
 
     table_of_contents = {}
     extra_paths_per_chapter = {}
@@ -106,11 +105,13 @@ def create_filetree(config, config_dir, output_format, action):
         chapter_output = Path(output_dir, chapter_title.replace(" ", "_"))
         chapter_output.mkdir(parents=True, exist_ok=True)
 
-        if assets:
+        if "assets" in chapter:
+            assets = Path(chapter["assets"])
             chapter_assets_dest = Path(chapter_output, assets)
             chapter_assets_dest.unlink(missing_ok=True)
-            assets_dir = assets if assets.is_absolute() else Path(config_dir, assets)
+            assets_dir = assets if assets.is_absolute() else Path(chapter_root, assets)
             chapter_assets_dest.symlink_to(assets_dir, target_is_directory=True)
+            assert chapter_assets_dest.exists(), f"Link is wrong: {chapter_assets_dest}"
 
         extras = [] if "extras" not in chapter else chapter["extras"]
         chapter_extras = []
