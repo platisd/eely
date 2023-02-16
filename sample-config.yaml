@@ -19,4 +19,4 @@ chapters:
       "Numbers": "numbers.md"
       "Booleans": "booleans.md"
       "Arrays": "arrays.md"
-      "Objects": "objects.md"
+      "Objects": "objects/objects.md"
