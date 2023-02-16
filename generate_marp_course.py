@@ -21,7 +21,7 @@ TABLE_OF_CONTENTS_CSS = """
     }
 
     ol li:before {
-        content: counters(item, ". ") ". ";
+        content: counters(item, ".") ". ";
         counter-increment: item;
     }
 """
