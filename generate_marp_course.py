@@ -49,18 +49,25 @@ def main():
     args = parser.parse_args()
 
     if args.link:
-        return run_action(args.link, "md", create_links)
+        all_slides_link = False
+        table_of_contents, output_dir, config = create_filetree(
+            args.link, "md", create_links
+        )
     if args.html:
-        return run_action(args.html, "html", create_html)
+        all_slides_link = False
+        table_of_contents, output_dir, config = create_filetree(
+            args.html, "html", create_html
+        )
     if args.pdf:
-        return run_action(args.pdf, "pdf", create_pdf)
+        all_slides_link = True
+        table_of_contents, output_dir, config = create_filetree(
+            args.pdf, "pdf", create_pdf
+        )
 
-    print("No action specified")
-
-    return 1
+    generate_index_page(table_of_contents, output_dir, config, all_slides_link)
 
 
-def run_action(config_path, output_format, action):
+def create_filetree(config_path, output_format, action):
     with open(config_path, "r") as config_file:
         config = yaml.safe_load(config_file)
 
@@ -97,9 +104,7 @@ def run_action(config_path, output_format, action):
 
         table_of_contents[chapter_title] = chapter_slides
 
-    generate_index_page(table_of_contents, output_dir, config, action == create_pdf)
-
-    return 0
+    return table_of_contents, output_dir, config
 
 
 def create_links(slide_src, slide_dest, _):
