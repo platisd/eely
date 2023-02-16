@@ -81,15 +81,18 @@ def run_action(config_path, output_format, action):
         )
 
         chapter_slides = []
+        slide_number = 0  # Number the slides to appear ordered when using marp --server
         for slide_title, slide_path in chapter["slides"].items():
             slide_src = Path(chapter_root, slide_path)
             assert slide_src.is_file(), f"Slide {slide_src} does not exist"
-            slide_dest = Path(chapter_output, Path(slide_path).name).with_suffix(
-                f".{output_format}"
+            dest_filename = Path(f"{slide_number:03}-{Path(slide_path).name}")
+            slide_dest = Path(
+                chapter_output, dest_filename.with_suffix(f".{output_format}")
             )
             slide_dest.parent.mkdir(parents=True, exist_ok=True)
             action(slide_src, slide_dest, config)
             chapter_slides.append((slide_title, slide_dest))
+            slide_number += 1
 
         table_of_contents[chapter_title] = chapter_slides
 
