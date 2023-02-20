@@ -164,7 +164,9 @@ def create_pdf(slide_src, slide_dest, config):
 
 def run_marp(slide_src, slide_dest, config, output_type_flag):
     marp = Path("marp" if "marp" not in config else config["marp-cli"])
-    subprocess.check_call([marp, slide_src, output_type_flag, "-o", slide_dest])
+    subprocess.check_call(
+        [marp, slide_src, output_type_flag, "--allow-local-files", "-o", slide_dest]
+    )
 
 
 def merge_course_slides(config, table_of_contents, output_dir):
