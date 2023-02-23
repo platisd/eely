@@ -26,6 +26,10 @@ TABLE_OF_CONTENTS_CSS = """
         content: counters(item, ".") ". ";
         counter-increment: item;
     }
+
+    body {
+        background: linear-gradient(to right, #d7d2cc 0%, #304352 100%);
+    }
 """
 
 
