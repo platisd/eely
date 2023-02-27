@@ -2,6 +2,8 @@
 
 Organize your Markdown-based content into configurable course deliveries.
 
+<img src="https://platis.solutions/assets/images/eely-square.png" width="500">
+
 ## What is `eely`?
 
 `eely` is a tool to help you create course deliveries from Markdown-based content.
