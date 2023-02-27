@@ -8,7 +8,7 @@ from pathlib import Path
 from pypdf import PdfWriter
 from zipfile import ZipFile
 
-TABLE_OF_CONTENTS_CSS = """
+INDEX_DEFAULT_CSS = """
     ol {
         counter-reset: item;
         font-size: 28pt;
@@ -36,6 +36,11 @@ TABLE_OF_CONTENTS_CSS = """
 def main():
     parser = argparse.ArgumentParser()
     group = parser.add_mutually_exclusive_group(required=True)
+    parser.add_argument(
+        "--css",
+        help="Path to the CSS file to use for the index page",
+        required=False,
+    )
     group.add_argument(
         "--link",
         metavar="CONFIG",
@@ -84,8 +89,16 @@ def main():
         course_archive = zip_course_material(
             config, output_dir, extra_paths, course_slides
         )
+
+    if args.css:
+        with open(args.css, "r") as css_file:
+            index_css = css_file.read()
+    else:
+        index_css = INDEX_DEFAULT_CSS
+
     generate_index_page(
         table_of_contents,
+        index_css,
         course_slides,
         course_archive,
         output_dir,
@@ -242,6 +255,7 @@ def zip_course_material(config, output_dir, extra_paths, course_slides):
 
 def generate_index_page(
     table_of_contents,
+    index_css,
     course_slides,
     course_archive,
     output_dir,
@@ -255,7 +269,7 @@ def generate_index_page(
                 with tag("title"):
                     text(config["title"])
                 with tag("style"):
-                    text(TABLE_OF_CONTENTS_CSS)
+                    text(index_css)
             with tag("body"):
                 # Title
                 with tag("h1"):
