@@ -108,7 +108,7 @@ def main():
 
 
 def create_filetree(config, config_dir, output_format, action):
-    root_path = Path() if "root" not in config else Path(config["root"])
+    root_path = Path(config_dir) if "root" not in config else Path(config["root"])
     root_dir = root_path if root_path.is_absolute() else Path(config_dir, root_path)
     output_path = "output" if "output" not in config else Path(config["output"])
     output_dir = (
