@@ -71,3 +71,65 @@ A match made in heaven for this project, if you ask me. 🤷‍♂️
 
 ## How does `eely` work?
 
+Before you can use `eely` you need to install its dependencies and create a configuration file.
+
+### Install dependencies
+
+`eely` utilizes [marp-cli](https://github.com/marp-team/marp-cli) to convert your Markdown files
+into HTML or PDF slides. So it assumes there's a `marp` binary in your `PATH`. The easiest ways
+to install it are:
+* `npm install -g @marp-team/marp-cli` if you have `npm` installed
+* Download the latest `marp` [binary](https://github.com/marp-team/marp-cli/releases)
+  for your platform and place it in your `PATH`. I've tested it with release `v2.4.0` on Ubuntu.
+
+Then you need to install `eely`'s Python dependencies. The easiest way is to use `pip` and
+don't forget you can use a [virtual environment](https://docs.python.org/3/library/venv.html):
+`pip install -r requirements.txt`
+
+### Configuration YAML
+
+Next, you need to create a `.yaml` file with the configuration for each of your course deliveries.
+In it, you will specify the contents of each delivery, the output directory, the extra content etc.
+You can find an example configuration in [sample-config.yaml](sample-config.yaml).
+
+An overview of the configuration file options:
+
+| Option | Description | Default |
+| --- | --- | --- |
+| `title` | The title of the course delivery. | No |
+| `root` | The root directory of the course content. | The same directory as the configuration YAML |
+| `output` | The output directory for the course delivery. | `output/` in the same directory as the configuration YAML |
+| `course_slides` | The path to the PDF file containing all the slides | The `title` relative to the config YAML with white spaces replaced with `_` |
+| `course_archive` | The path to the ZIP file containing all the slides and extra content | The `title` relative to the config YAML with white spaces replaced with `_` |
+| `chapters` | The keys represent the titles of the chapters | No |
+| `chapters.<chapter>.root` | The root directory of the chapter content | The same directory as the configuration YAML |
+| `chapters.<chapter>.assets` | The directory containing the assets (e.g. images for the slides) for the chapter | Ignored if not present |
+| `chapters.<chapter>.slides` | The slides/lectures to include in the chapter, keys are the titles and values are the paths to the respective `.md` file | No |
+| `chapters.<chapter>.extras` | A list with the paths to the extra content to include in the chapter, entire directories can be specified | Ignored if not present |
+
+In the above options whenever a path is needed, it can be either absolute or relative to the
+configuration YAML file. Relative paths are recommended. An example of a recommended file structure can be found in [test/my-awesome-course](test/my-awesome-course).
+
+Order matters! The order of the chapters and the order of the slides within each chapter is the same as in the configuration file.
+
+### Usage
+
+`eely` can be used in the following ways:
+* **Static classroom mode (HTML)** - HTML slides are generated for the entire
+  course and the instructor can navigate between them during the classroom.
+  * `python3 eely.py --html <path/to/your/config.yaml>`
+* **Dynamic classroom mode (links)** - Links to the markdown files are generated
+  in the correct order and the instructor can navigate between them during the classroom
+  using `marp --server` inside the `output` folder. Any changes to the content during the
+  classroom are reflected in the slides.
+  * `python3 eely.py --link <path/to/your/config.yaml>`
+* **Delivery mode (PDF)** - PDF slides are generated for for each lecture as well as for the
+  entire course. Any extra files are packaged along with the slides in a ZIP file.
+  * `python3 eely.py --pdf <path/to/your/config.yaml>`
+
+In all modes, an `index.html` file is generated in the `output` directory specified
+in the YAML file. It contains links to to all slides organized by chapter.
+You can use this during the classroom to navigate between the different lectures.<br>
+If the PDF mode is used, it will also contain links to download the single PDF file containing all
+slides as well as the ZIP file containing all the slides and the extra content (e.g. labs).
+You can then distribute the archive with all course material to the students.
