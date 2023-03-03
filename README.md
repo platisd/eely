@@ -2,7 +2,7 @@
 
 Organize your Markdown-based content into configurable course deliveries.
 
-<img src="https://platis.solutions/assets/images/eely-square.png" width="500">
+<img src="https://platis.solutions/assets/images/eely-logo-vertical.png" width="500">
 
 ## What is `eely`?
 
