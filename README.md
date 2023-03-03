@@ -104,7 +104,7 @@ An overview of the configuration file options:
 | `chapters` | The keys represent the titles of the chapters | No |
 | `chapters.<chapter>.root` | The root directory of the chapter content | The same directory as the configuration YAML |
 | `chapters.<chapter>.assets` | The directory containing the assets (e.g. images for the slides) for the chapter | Ignored if not present |
-| `chapters.<chapter>.slides` | The slides/lectures to include in the chapter, keys are the titles and values are the paths to the respective `.md` file | No |
+| `chapters.<chapter>.lectures` | The lectures to include in the chapter, keys are the titles and values are the paths to the respective `.md` file | No |
 | `chapters.<chapter>.extras` | A list with the paths to the extra content to include in the chapter, entire directories can be specified | Ignored if not present |
 
 In the above options whenever a path is needed, it can be either absolute or relative to the

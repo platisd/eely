@@ -148,21 +148,23 @@ def create_filetree(config, config_dir, output_format, action):
             extra_paths_per_chapter[chapter_title]["extras"] = chapter_extras
             extra_paths_per_chapter[chapter_title]["root"] = chapter_root
 
-        chapter_slides = []
-        slide_number = 0  # Number the slides to appear ordered when using marp --server
-        for slide_title, slide_path in chapter["slides"].items():
-            slide_src = Path(chapter_root, slide_path)
-            assert slide_src.is_file(), f"Slide {slide_src} does not exist"
-            dest_filename = Path(f"{slide_number:03}-{Path(slide_path).name}")
-            slide_dest = Path(
+        chapter_lectures = []
+        lecture_number = (
+            0  # Number the lectures to appear ordered when using marp --server
+        )
+        for lecture_title, lecture_path in chapter["lectures"].items():
+            lecture_src = Path(chapter_root, lecture_path)
+            assert lecture_src.is_file(), f"Lecture {lecture_src} does not exist"
+            dest_filename = Path(f"{lecture_number:03}-{Path(lecture_path).name}")
+            lecture_dest = Path(
                 chapter_output, dest_filename.with_suffix(f".{output_format}")
             )
-            slide_dest.parent.mkdir(parents=True, exist_ok=True)
-            action(slide_src, slide_dest, config)
-            chapter_slides.append((slide_title, slide_dest))
-            slide_number += 1
+            lecture_dest.parent.mkdir(parents=True, exist_ok=True)
+            action(lecture_src, lecture_dest, config)
+            chapter_lectures.append((lecture_title, lecture_dest))
+            lecture_number += 1
 
-        table_of_contents[chapter_title] = chapter_slides
+        table_of_contents[chapter_title] = chapter_lectures
 
     return table_of_contents, output_dir, extra_paths_per_chapter
 
@@ -278,14 +280,14 @@ def generate_index_page(
                     text(config["title"])
                 # Table of contents
                 with tag("ol", type="1"):
-                    for chapter_title, chapter_slides in table_of_contents.items():
+                    for chapter_title, chapter_lectures in table_of_contents.items():
                         with tag("li"):
                             text(chapter_title)
                             with tag("ol", type="1"):
-                                for slide_title, slide_path in chapter_slides:
+                                for lecture_title, lecture_path in chapter_lectures:
                                     with tag("li"):
-                                        with tag("a", href=f"{slide_path}"):
-                                            text(slide_title)
+                                        with tag("a", href=f"{lecture_path}"):
+                                            text(lecture_title)
                 if package_material:
                     doc.stag("hr")
                     with tag("a", href=f"{course_slides}", style="font-size: 24pt"):

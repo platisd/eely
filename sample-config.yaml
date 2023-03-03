@@ -1,6 +1,6 @@
 ---
 title: "Company X delivery"
-root: "slides"
+root: "lectures"
 output: "output/company-x"
 course_slides: "company-x-course.pdf"
 course_archive: "company-x-course.zip"
@@ -8,7 +8,7 @@ chapters:
   "Hello world":
     root: "hello-world"
     assets: "resources"
-    slides:
+    lectures:
       "Hello world": "hello-world.md"
       "Setting up the environment": "environment.md"
       "Variables": "variables.md"
@@ -19,7 +19,7 @@ chapters:
       - "how-to-setup-vscode.pdf"
   "Data types":
     root: "data-types"
-    slides:
+    lectures:
       "Data types": "data-types.md"
       "Strings": "strings.md"
       "Numbers": "numbers.md"
