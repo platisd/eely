@@ -106,6 +106,7 @@ An overview of the configuration file options:
 | `chapters.<chapter>.assets` | The directory containing the assets (e.g. images for the slides) for the chapter | Ignored if not present |
 | `chapters.<chapter>.lectures` | The lectures to include in the chapter, keys are the titles and values are the paths to the respective `.md` file | No |
 | `chapters.<chapter>.extras` | A list with the paths to the extra content to include in the chapter, entire directories can be specified | Ignored if not present |
+| `watermark` | The path to another PDF you would like to use as a watermark, more details [here](#watermark) | Ignored if not present |
 
 In the above options whenever a path is needed, it can be either absolute or relative to the
 configuration YAML file. Relative paths are recommended. An example of a recommended file structure can be found in [test/my-awesome-course](test/my-awesome-course).
@@ -133,3 +134,14 @@ You can use this during the classroom to navigate between the different lectures
 If the PDF mode is used, it will also contain links to download the single PDF file containing all
 slides as well as the ZIP file containing all the slides and the extra content (e.g. labs).
 You can then distribute the archive with all course material to the students.
+
+### Watermark
+
+The PDF you specify is applied **on top** of the complete course material so you may need to think about:
+1. The opacity of your overlay, if you want your watermark to be underneath the text you need to make it
+  less transparent.
+2. For the overlay PDF to end up where you want it, you need to ensure that the overlay is smaller or the same
+  size as the course material PDF you are overlaying it on.
+
+The reason it is applied on top and not below is that slides typically have some background image and in that
+case the watermark would be hidden underneath it. Fixes or suggestions around this are welcome.

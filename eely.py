@@ -7,7 +7,7 @@ import subprocess
 
 from yattag import Doc, indent
 from pathlib import Path
-from pypdf import PdfWriter
+from pypdf import PdfWriter, PdfReader, Transformation
 from zipfile import ZipFile
 
 INDEX_DEFAULT_CSS = """
@@ -81,13 +81,22 @@ def main():
     with open(config_path, "r") as config_file:
         config = yaml.safe_load(config_file)
 
+    config_dir = config_path.parent
     table_of_contents, output_dir, extra_paths = create_filetree(
-        config, config_path.parent, output_format, action
+        config, config_dir, output_format, action
     )
     course_slides = None
     course_archive = None
     if package_material:
         course_slides = merge_course_slides(config, table_of_contents, output_dir)
+        if "watermark" in config:
+            watermark_path = Path(config["watermark"])
+            watermark_path = (
+                watermark_path
+                if watermark_path.is_absolute()
+                else Path(config_dir, watermark_path)
+            )
+            add_watermark(course_slides, watermark_path)
         course_archive = zip_course_material(
             config, output_dir, extra_paths, course_slides
         )
@@ -296,6 +305,33 @@ def generate_index_page(
                     with tag("a", href=f"{course_archive}", style="font-size: 24pt"):
                         text("Course archive")
         index_file.write(indent(doc.getvalue(), indent_text=True))
+
+
+def add_watermark(content_pdf, watermark_pdf):
+    # Adapted from https://pypdf.readthedocs.io/en/stable/user/add-watermark.html
+    reader = PdfReader(content_pdf)
+    page_indices = range(len(reader.pages))
+
+    writer = PdfWriter()
+    watermark_page = PdfReader(watermark_pdf).pages[0]
+    for index in page_indices:
+        content_page = reader.pages[index]
+        content_page.merge_transformed_page(
+            watermark_page,
+            Transformation(),
+            over=True,  # Placing the watermark under usually doesn't work
+            expand=True,
+        )
+        # Placing the watermark "under" usually doesn't work as the slide, typically,
+        # has a background image and as a result the watermark is never shown.
+        # If you want a watermark-like behavior then add transparency
+        # to your "stamp" PDF.
+        writer.add_page(content_page)
+
+    pdf_result = Path(content_pdf).with_suffix(".watermarked.pdf")
+    with open(pdf_result, "wb") as fp:
+        writer.write(fp)
+    pdf_result.replace(content_pdf)
 
 
 if __name__ == "__main__":
