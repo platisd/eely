@@ -78,6 +78,7 @@ def main():
     else:
         raise RuntimeError("Action missing, we should not get here")
 
+    config_path = config_path.resolve()
     with open(config_path, "r") as config_file:
         config = yaml.safe_load(config_file)
 
