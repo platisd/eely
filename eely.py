@@ -298,6 +298,7 @@ def generate_index_page(
                             with tag("ol", type="1"):
                                 for lecture_title, lecture_path in chapter_lectures:
                                     with tag("li"):
+                                        lecture_path = lecture_path.relative_to(index_path.parent)
                                         with tag("a", href=f"{lecture_path}"):
                                             text(lecture_title)
                 if package_material:
