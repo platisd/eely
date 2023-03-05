@@ -90,7 +90,8 @@ don't forget you can use a [virtual environment](https://docs.python.org/3/libra
 
 Next, you need to create a `.yaml` file with the configuration for each of your course deliveries.
 In it, you will specify the contents of each delivery, the output directory, the extra content etc.
-You can find an example configuration in [sample-config.yaml](sample-config.yaml).
+You can find an example configuration in [beginning-course.yaml](https://github.com/platisd/eely-sample-repository/blob/master/beginning-course.yaml)
+that's referring to this [sample repository](https://github.com/platisd/eely-sample-repository).
 
 An overview of the configuration file options:
 
