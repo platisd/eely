@@ -98,7 +98,7 @@ An overview of the configuration file options:
 | --- | --- | --- |
 | `title` | The title of the course delivery. | No |
 | `root` | The root directory of the course content. | The same directory as the configuration YAML |
-| `output` | The output directory for the course delivery. | `output/` in the same directory as the configuration YAML |
+| `output` | The output directory for the course delivery. | A subdirectory based on `title` under `output/` in the same directory as the configuration YAML |
 | `course_slides` | The path to the PDF file containing all the slides | The `title` relative to the config YAML with white spaces replaced with `_` |
 | `course_archive` | The path to the ZIP file containing all the slides and extra content | The `title` relative to the config YAML with white spaces replaced with `_` |
 | `chapters` | The keys represent the titles of the chapters | No |
