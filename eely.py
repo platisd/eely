@@ -276,7 +276,8 @@ def generate_index_page(
     config,
     package_material,
 ):
-    with open(Path(output_dir, "index.html"), "w") as index_file:
+    index_path = Path(output_dir, "index.html")
+    with open(index_path, "w") as index_file:
         doc, tag, text = Doc().tagtext()
         with tag("html"):
             with tag("head"):
@@ -306,6 +307,7 @@ def generate_index_page(
                     with tag("a", href=f"{course_archive}", style="font-size: 24pt"):
                         text("Course archive")
         index_file.write(indent(doc.getvalue(), indent_text=True))
+        print(f"Generated course page at: {index_path}")
 
 
 def add_watermark(content_pdf, watermark_pdf):
