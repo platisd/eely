@@ -86,6 +86,13 @@ Then you need to install `eely`'s Python dependencies. The easiest way is to use
 don't forget you can use a [virtual environment](https://docs.python.org/3/library/venv.html):
 `pip install -r requirements.txt`
 
+### Markdown slides
+
+`eely` uses [marp](https://marp.app/#get-started) to convert your Markdown files into HTML or PDF slides.
+You need to follow the supported syntax of `marp` to create your slides.
+We could potentially support other slide generators in the future, as long as they are simple to integrate.
+Feel free to open an issue if you have a suggestion.
+
 ### Configuration YAML
 
 Next, you need to create a `.yaml` file with the configuration for each of your course deliveries.
