@@ -43,6 +43,31 @@ def main():
         help="Path to the CSS file to use for the index page",
         required=False,
     )
+    parser.add_argument(
+        "--config-title",
+        help="Set or override the title property of config",
+        required=False,
+    )
+    parser.add_argument(
+        "--config-output",
+        help="Set or override the output property of config",
+        required=False,
+    )
+    parser.add_argument(
+        "--config-course_slides",
+        help="Set or override the course_slides property of config",
+        required=False,
+    )
+    parser.add_argument(
+        "--config-course_archive",
+        help="Set or override the course_archive property of config",
+        required=False,
+    )
+    parser.add_argument(
+        "--config-watermark",
+        help="Set or override the watermark property of config",
+        required=False,
+    )
     group.add_argument(
         "--link",
         metavar="CONFIG",
@@ -81,6 +106,8 @@ def main():
     config_path = config_path.resolve()
     with open(config_path, "r") as config_file:
         config = yaml.safe_load(config_file)
+
+    override_config(config, args)
 
     config_dir = config_path.parent
     table_of_contents, output_dir, extra_paths = create_filetree(
@@ -339,6 +366,19 @@ def add_watermark(content_pdf, watermark_pdf):
     with open(pdf_result, "wb") as fp:
         writer.write(fp)
     pdf_result.replace(content_pdf)
+
+
+def override_config(config, args):
+    if args.config_title:
+        config["title"] = args.config_title
+    if args.config_output:
+        config["output"] = args.config_output
+    if args.config_course_slides:
+        config["course_slides"] = args.config_course_slides
+    if args.config_course_archive:
+        config["course_archive"] = args.config_course_archive
+    if args.config_watermark:
+        config["watermark"] = args.config_watermark
 
 
 if __name__ == "__main__":
