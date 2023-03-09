@@ -338,7 +338,7 @@ def generate_index_page(
                     with tag("a", href=f"{course_archive}", style="font-size: 24pt"):
                         text("Course archive")
         index_file.write(indent(doc.getvalue(), indent_text=True))
-        print(f"Generated course page at: {index_path}")
+        print(f"Generated course page at: {index_path.resolve()}")
 
 
 def add_watermark(content_pdf, watermark_pdf):
