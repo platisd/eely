@@ -102,19 +102,19 @@ that's referring to this [sample repository](https://github.com/platisd/eely-sam
 
 An overview of the configuration file options:
 
-| Option | Description | Default |
-| --- | --- | --- |
-| `title` | The title of the course delivery. | No |
-| `root` | The root directory of the course content. | The same directory as the configuration YAML |
-| `output` | The output directory for the course delivery. | A subdirectory based on `title` under `output/` in the same directory as the configuration YAML |
-| `course_slides` | The path to the PDF file containing all the slides | The `title` relative to the config YAML with white spaces replaced with `_` |
-| `course_archive` | The path to the ZIP file containing all the slides and extra content | The `title` relative to the config YAML with white spaces replaced with `_` |
-| `chapters` | The keys represent the titles of the chapters | No |
-| `chapters.<chapter>.root` | The root directory of the chapter content | The same directory as the configuration YAML |
-| `chapters.<chapter>.assets` | The directory containing the assets (e.g. images for the slides) for the chapter | Ignored if not present |
-| `chapters.<chapter>.lectures` | The lectures to include in the chapter, keys are the titles and values are the paths to the respective `.md` file | No |
-| `chapters.<chapter>.extras` | A list with the paths to the extra content to include in the chapter, entire directories can be specified | Ignored if not present |
-| `watermark` | The path to another PDF you would like to use as a watermark, more details [here](#watermark) | Ignored if not present |
+| Option                        | Description                                                                                                       | Default                                                      |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `title`                       | The title of the course delivery.                                                                                 | No                                                           |
+| `root`                        | The root directory of the course content.                                                                         | The same directory as the configuration YAML                 |
+| `output`                      | The output directory for the course delivery.                                                                     | A subdirectory based on `title` under `output/`              |
+| `course_slides`               | The path to the PDF file containing all the slides                                                                | The `title` relative to the config, spaces replaced with `_` |
+| `course_archive`              | The path to the ZIP file containing all the slides and extra content                                              | The `title` relative to the config, spaces replaced with `_` |
+| `chapters`                    | The keys represent the titles of the chapters                                                                     | No                                                           |
+| `chapters.<chapter>.root`     | The root directory of the chapter content                                                                         | The same directory as the configuration YAML                 |
+| `chapters.<chapter>.assets`   | The directory containing the assets (e.g. images for the slides) for the chapter                                  | Ignored if not present                                       |
+| `chapters.<chapter>.lectures` | The lectures to include in the chapter, keys are the titles and values are the paths to the respective `.md` file | No                                                           |
+| `chapters.<chapter>.extras`   | A list with the paths to the extra content to include in the chapter, entire directories can be specified         | Ignored if not present                                       |
+| `watermark`                   | The path to another PDF you would like to use as a watermark, more details [here](#watermark)                     | Ignored if not present                                       |
 
 In the above options whenever a path is needed, it can be either absolute or relative to the
 configuration YAML file. Relative paths are recommended. An example of a recommended file structure can be found in [test/my-awesome-course](test/my-awesome-course).
@@ -153,3 +153,11 @@ The PDF you specify is applied **on top** of the complete course material so you
 
 The reason it is applied on top and not below is that slides typically have some background image and in that
 case the watermark would be hidden underneath it. Fixes or suggestions around this are welcome.
+
+### Additional command line arguments
+
+Aside of the `--html`, `--link` and `--pdf` arguments, `eely` also supports some helpful arguments that
+allow you to override some configuration file options. This allows you to use the same configuration file
+for multiple course deliveries and just override the (few) options that are different for each delivery.
+
+Run `--help` to explore the different options.
