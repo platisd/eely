@@ -29,7 +29,7 @@ to be tied to any vendor-centric such as Google Slides or Powerpoint.
 1. **One lecture per file** - I like to have one lecture per file. Divide and conquer!<br>
 I don't want to maintain the whole course or even "chapter" in one file.
 Having one file for "everything" is very inflexible and content is hard to find.
-1. **Navigateable chapter-based organization** - I like to organize my content into chapters.<br>
+1. **Navigable chapter-based organization** - I like to organize my content into chapters.<br>
 I don't want to have a flat list of lectures, I want to be able to organize my content into
 chapters. It is more "natural" and resembles a book.
 It is easier for the instructor to browse and communicate the content during the classroom
@@ -40,7 +40,7 @@ there's a lot of overlap. For example, I've got a "beginner", "intermediate" and
 The "intermediate" course is a mix of the "beginner" and "advanced" courses.
 Then, there are customers who want to skip some content from one course and add some
 material specifically tailored for them.<br>
-I want to be able to accomodate the above without maintainting multiple copies/branches
+I want to be able to accommodate the above without maintaining multiple copies/branches
 and without having to manually edit existing content for each delivery.
 1. **All course material in one PDF** - I like to be able to generate a single PDF file with all the course material and hand it out to the students.<br>
 Remember, that doesn't mean I want to have a single Markdown file for the whole course.
