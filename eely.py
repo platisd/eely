@@ -114,6 +114,7 @@ def main():
         config, config_dir, output_format, action
     )
     course_slides = None
+    labs_archive = None
     course_archive = None
     if package_material:
         course_slides = merge_course_slides(config, table_of_contents, output_dir)
@@ -128,6 +129,10 @@ def main():
         course_archive = zip_course_material(
             config, output_dir, extra_paths, course_slides
         )
+        labs_archive = Path(
+            course_archive.parent, course_archive.stem + "-labs" + course_archive.suffix
+        )
+        delete_from_archive(course_archive, course_slides.name, labs_archive)
 
     if args.css:
         with open(args.css, "r") as css_file:
@@ -140,6 +145,7 @@ def main():
         index_css,
         course_slides,
         course_archive,
+        labs_archive,
         output_dir,
         config,
         package_material,
@@ -295,11 +301,21 @@ def zip_course_material(config, output_dir, extra_paths, course_slides):
     return course_archive
 
 
+def delete_from_archive(original_archive, path_to_remove, output_archive):
+    with ZipFile(original_archive, "r") as original:
+        with ZipFile(output_archive, "w") as output:
+            for item in original.infolist():
+                file = original.read(item.filename)
+                if item.filename != path_to_remove:
+                    output.writestr(item.filename, file)
+
+
 def generate_index_page(
     table_of_contents,
     index_css,
     course_slides,
     course_archive,
+    labs_archive,
     output_dir,
     config,
     package_material,
@@ -334,6 +350,9 @@ def generate_index_page(
                     doc.stag("hr")
                     with tag("a", href=f"{course_slides}", style="font-size: 24pt"):
                         text("Course slides")
+                    doc.stag("br")
+                    with tag("a", href=f"{labs_archive}", style="font-size: 24pt"):
+                        text("Labs archive")
                     doc.stag("br")
                     with tag("a", href=f"{course_archive}", style="font-size: 24pt"):
                         text("Course archive")
