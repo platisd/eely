@@ -224,7 +224,8 @@ def create_html(slide_src, slide_dest, config):
 
 
 def create_pdf(slide_src, slide_dest, config):
-    run_marp(slide_src, slide_dest, config, "--pdf")
+    # Add both html and pdf arguments to render HTML tags for PDF
+    run_marp(slide_src, slide_dest, config, "--html --pdf")
 
 
 def run_marp(slide_src, slide_dest, config, output_type_flag):
