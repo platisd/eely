@@ -210,6 +210,18 @@ def create_filetree(config, config_dir, output_format, action):
 
         table_of_contents[chapter_title] = chapter_lectures
 
+    if "assets" in config:
+        course_assets = Path(config["assets"])
+        course_assets_dest = Path(output_dir, course_assets)
+        course_assets_dest.unlink(missing_ok=True)
+        course_assets_dir = (
+            course_assets
+            if course_assets.is_absolute()
+            else Path(root_dir, course_assets)
+        )
+        course_assets_dest.symlink_to(course_assets_dir, target_is_directory=True)
+        assert course_assets_dest.exists(), f"Assets don't exist: {course_assets_dest}"
+
     return table_of_contents, output_dir, extra_paths_per_chapter
 
 
