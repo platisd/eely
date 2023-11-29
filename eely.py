@@ -237,13 +237,20 @@ def create_html(slide_src, slide_dest, config):
 
 def create_pdf(slide_src, slide_dest, config):
     # Add both html and pdf arguments to render HTML tags for PDF
-    run_marp(slide_src, slide_dest, config, "--html --pdf")
+    run_marp(slide_src, slide_dest, config, "--html", "--pdf")
 
 
-def run_marp(slide_src, slide_dest, config, output_type_flag):
+def run_marp(slide_src, slide_dest, config, *output_type_flags):
     marp = Path("marp" if "marp" not in config else config["marp-cli"])
     subprocess.check_call(
-        [marp, slide_src, output_type_flag, "--allow-local-files", "-o", slide_dest]
+        [
+            marp,
+            slide_src,
+            *output_type_flags,
+            "--allow-local-files",
+            "-o",
+            slide_dest,
+        ]
     )
 
 
