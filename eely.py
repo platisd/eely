@@ -64,7 +64,7 @@ def main():
         required=False,
     )
     parser.add_argument(
-        "--config-watermark",
+        "--watermark",
         help="Set or override the watermark property of config",
         required=False,
     )
@@ -118,8 +118,8 @@ def main():
     course_archive = None
     if package_material:
         course_slides = merge_course_slides(config, table_of_contents, output_dir)
-        if "watermark" in config:
-            watermark_path = Path(config["watermark"])
+        if args.watermark:
+            watermark_path = Path(args.watermark)
             watermark_path = (
                 watermark_path
                 if watermark_path.is_absolute()
@@ -416,8 +416,6 @@ def override_config(config, args):
         config["course_slides"] = args.config_course_slides
     if args.config_course_archive:
         config["course_archive"] = args.config_course_archive
-    if args.config_watermark:
-        config["watermark"] = args.config_watermark
 
 
 if __name__ == "__main__":
