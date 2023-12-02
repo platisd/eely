@@ -411,13 +411,18 @@ def override_config(config, args):
     if args.config_title:
         config["title"] = args.config_title
     if args.config_output:
-        config["output"] = args.config_output
+        config["output"] = to_absolute_path(args.config_output)
     if args.config_course_slides:
         config["course_slides"] = args.config_course_slides
     if args.config_course_archive:
         config["course_archive"] = args.config_course_archive
     if args.config_watermark:
-        config["watermark"] = args.config_watermark
+        config["watermark"] = to_absolute_path(args.config_watermark)
+
+
+def to_absolute_path(path):
+    path = Path(path)
+    return path if path.is_absolute() else Path.cwd() / path
 
 
 if __name__ == "__main__":
