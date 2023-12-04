@@ -4,10 +4,13 @@ import argparse
 import sys
 import yaml
 import subprocess
+import tempfile
 
 from yattag import Doc, indent
 from pathlib import Path
 from pypdf import PdfWriter, PdfReader, Transformation
+from pypdf.generic import AnnotationBuilder
+from fpdf import FPDF
 from zipfile import ZipFile
 
 INDEX_DEFAULT_CSS = """
@@ -255,10 +258,58 @@ def run_marp(slide_src, slide_dest, config, *output_type_flags):
 
 
 def merge_course_slides(config, table_of_contents, output_dir):
-    with PdfWriter() as merger:
-        for chapter_slides in table_of_contents.values():
-            for _, slide_path in chapter_slides:
-                merger.append(slide_path)
+    chapters_and_pages = []  # To be used to generate the table of contents
+    with PdfWriter() as contents_merger:
+        for chapter_title, chapter_slides in table_of_contents.items():
+            chapter_contents = []
+            for slide_title, slide_path in chapter_slides:
+                chapter_contents.append(
+                    {
+                        "slide_title": slide_title,
+                        "page_number": len(contents_merger.pages) + 2,
+                    }
+                )
+                contents_merger.append(slide_path, outline_item=slide_title)
+
+            chapters_and_pages.append(
+                {"chapter_title": chapter_title, "contents": chapter_contents}
+            )
+
+        # Add the contents pdf to a temporary file
+        merged_contents_path = Path(tempfile.gettempdir(), "merged_contents.pdf")
+        contents_merger.write(merged_contents_path)
+
+    toc_path = create_toc(config["title"], chapters_and_pages)
+    toc_reader = PdfReader(toc_path)
+    with PdfWriter() as toc_merger:
+        # Preseve the size of the TOC page
+        # If we append directly then the TOC gets a weird shape
+        toc_page_width = toc_reader.pages[0].mediabox.width
+        toc_page_height = toc_reader.pages[0].mediabox.height
+        toc_reader.pages[0].scale_to(toc_page_width, toc_page_height)
+        toc_merger.add_page(toc_reader.pages[0])
+
+        toc_merger.append(merged_contents_path, outline_item="Contents")
+
+        for chapter in chapters_and_pages:
+            for slide in chapter["contents"]:
+                mediabox_height = toc_merger.pages[0].mediabox.height
+                # In the fpdf library, the origin is at the top left corner
+                # so we need to invert the y coordinates to match pypdf
+                slide["rect"] = (
+                    slide["rect"][0],
+                    mediabox_height - slide["rect"][1],
+                    slide["rect"][2],
+                    mediabox_height - slide["rect"][3],
+                )
+                toc_merger.add_annotation(
+                    0,
+                    AnnotationBuilder.link(
+                        rect=slide["rect"],
+                        target_page_index=slide["page_number"] - 1,  # 0-based
+                    ),
+                )
+
         course_slides = Path(
             f'{config["title"].replace(" ", "_")}.pdf'
             if "course_slides" not in config
@@ -269,7 +320,7 @@ def merge_course_slides(config, table_of_contents, output_dir):
             if course_slides.is_absolute()
             else Path(output_dir, course_slides)
         )
-        merger.write(course_slides)
+        toc_merger.write(course_slides)
 
     return course_slides
 
@@ -423,6 +474,59 @@ def override_config(config, args):
 def to_absolute_path(path):
     path = Path(path)
     return path if path.is_absolute() else Path.cwd() / path
+
+
+def create_toc(title, chapters_and_pages) -> Path:
+    def p(pdf, text, **kwargs):
+        """Inserts a paragraph"""
+        pdf.multi_cell(
+            w=pdf.epw,
+            h=pdf.font_size,
+            text=text,
+            new_x="LMARGIN",
+            new_y="NEXT",
+            **kwargs,
+        )
+
+    pdf = FPDF(unit="pt")
+    pdf.set_font("Helvetica")
+    pdf.add_page()
+    pdf.set_y(40)
+    pdf.set_font(size=40)
+    p(pdf, title, align="C")
+    pdf.y += 30
+    pdf.set_font("Courier", size=12)
+    for chapter in chapters_and_pages:
+        # Add the chapter title
+        pdf.set_font("Helvetica", size=14)
+        p(pdf, chapter["chapter_title"])
+        pdf.y += pdf.font_size / 3
+        pdf.set_font("Courier", size=12)
+        # Add the chapter contents
+        for slide in chapter["contents"]:
+            rect_lower_left_x = pdf.get_x()
+            rect_lower_left_y = pdf.get_y()
+            rect_upper_right_x = pdf.epw
+            rect_upper_right_y = rect_lower_left_y + pdf.font_size
+
+            slide["rect"] = (
+                rect_lower_left_x,
+                rect_lower_left_y,
+                rect_upper_right_x,
+                rect_upper_right_y,
+            )
+            p(
+                pdf,
+                f'{slide["slide_title"]} {"." * (60 - len(slide["slide_title"]))} {slide["page_number"]}',
+                align="C",
+            )
+        pdf.y += pdf.font_size / 3
+
+    # Place output in temporary folder
+    toc_path = Path(tempfile.gettempdir(), "toc.pdf")
+    pdf.output(toc_path)
+
+    return toc_path
 
 
 if __name__ == "__main__":

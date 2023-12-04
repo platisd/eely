@@ -2,3 +2,4 @@ pyyaml==6.0
 yattag==1.15.0
 pypdf==3.4.1
 pytest==7.2.1
+fpdf2==2.7.6
